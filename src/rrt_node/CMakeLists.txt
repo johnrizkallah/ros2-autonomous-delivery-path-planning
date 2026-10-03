@@ -49,6 +49,7 @@ install(
 install(
   DIRECTORY
     config
+    launch
     launch_ros2
     maps
   DESTINATION share/${PROJECT_NAME}
