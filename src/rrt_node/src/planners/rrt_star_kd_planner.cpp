@@ -419,10 +419,52 @@ vector< pair<Point, Point> > smooth_path(const vector< pair<Point, Point> > &pat
 
 // -----------------------------------------------------------------------------
 // main
-int main() {
+int main(int argc, char *argv[]) {
+    // Default configuration reproduces the original validated map8 run.
+    string yaml_file = "/home/john-rizkallah/thesis_ros2_public/src/rrt_node/maps/map8.yaml";
+    string output_file = "rrt_path_star_kd.txt";
+    int start_x = -1, start_y = -1;
+    int goal_x = -1, goal_y = -1;
+    int start_option = 0;
+    int goal_option = 2;
+
+    for (int i = 1; i < argc; ++i) {
+        string arg = argv[i];
+        auto next = [&]() -> string {
+            if (i + 1 >= argc) {
+                cerr << "Missing value for " << arg << endl;
+                exit(EXIT_FAILURE);
+            }
+            return argv[++i];
+        };
+
+        if (arg == "--map") yaml_file = next();
+        else if (arg == "--output") output_file = next();
+        else if (arg == "--start-x") start_x = stoi(next());
+        else if (arg == "--start-y") start_y = stoi(next());
+        else if (arg == "--goal-x") goal_x = stoi(next());
+        else if (arg == "--goal-y") goal_y = stoi(next());
+        else if (arg == "--start-option") start_option = stoi(next());
+        else if (arg == "--goal-option") goal_option = stoi(next());
+        else if (arg == "--help") {
+            cout << "Usage: rrt_star_kd_planner [options]\n"
+                 << "  --map PATH           Occupancy-grid YAML file\n"
+                 << "  --output PATH        Output path file\n"
+                 << "  --start-x INT        Start x in map pixels\n"
+                 << "  --start-y INT        Start y in map pixels\n"
+                 << "  --goal-x INT         Goal x in map pixels\n"
+                 << "  --goal-y INT         Goal y in map pixels\n"
+                 << "  --start-option INT   Legacy preset start index\n"
+                 << "  --goal-option INT    Legacy preset goal index\n";
+            return 0;
+        } else {
+            cerr << "Unknown argument: " << arg << endl;
+            return EXIT_FAILURE;
+        }
+    }
+
     // 1. Measure time for loading map YAML
     auto start_time = Clock::now();
-    string yaml_file = "/home/john-rizkallah/thesis_ros2_public/src/rrt_node/maps/map8.yaml";
     string map_image_file;
     double map_resolution;
     vector<double> map_origin;
@@ -440,12 +482,17 @@ int main() {
     double load_image_time = chrono::duration_cast<chrono::duration<double>>(Clock::now() - start_time).count();
     cout << "Time to load map image: " << load_image_time << " seconds" << endl;
 
-    // Goal position (hard-coded for this example)
-    int option = 2;
-    vector<Point> goal_position = get_goal_positions(option);
-    if (goal_position.empty()) {
-        cout << "No goal positions found for option: " << option << endl;
-        return -1;
+    // Goal position: use explicit pixel coordinates if provided,
+    // otherwise fall back to the original legacy preset.
+    vector<Point> goal_position;
+    if (goal_x >= 0 && goal_y >= 0) {
+        goal_position = {Point(goal_x, goal_y)};
+    } else {
+        goal_position = get_goal_positions(goal_option);
+        if (goal_position.empty()) {
+            cout << "No goal positions found for option: " << goal_option << endl;
+            return -1;
+        }
     }
 
     // 3. Measure time for converting map to binary
@@ -467,13 +514,17 @@ int main() {
     int radius = 25;      // Vehicle radius in map units
     int radius_goal = 13;
 
-    int option2 = 0;
-    vector<Point> start_pos_vec = get_start_position(option2);
-    if (start_pos_vec.empty()) {
-        cout << "No start position found for option: " << option2 << endl;
-        return -1;
+    Point start_pos;
+    if (start_x >= 0 && start_y >= 0) {
+        start_pos = Point(start_x, start_y);
+    } else {
+        vector<Point> start_pos_vec = get_start_position(start_option);
+        if (start_pos_vec.empty()) {
+            cout << "No start position found for option: " << start_option << endl;
+            return -1;
+        }
+        start_pos = start_pos_vec[0];
     }
-    Point start_pos = start_pos_vec[0];
 
     Point2d start_world = map_to_world(start_pos, map_resolution, map_origin, BW.rows);
     vector<Point2d> goal_world_positions;
@@ -713,7 +764,7 @@ int main() {
         }
 
         // Save the path to a text file
-        ofstream file("rrt_path_star_kd_B15ent.txt");
+        ofstream file(output_file);
         if (file.is_open()) {
             for (const auto &coord : path_world) {
                 file << "(" << coord.first.x << ", " << coord.first.y << ") -> ("
@@ -771,7 +822,7 @@ int main() {
     }
     
     // Call Python script to plot (note the semicolon added)
-    system("python3 RRT_star_kd_plot.py");
+    // Optional external plotting removed from the clean standalone build.
 
     return 0;
 }
