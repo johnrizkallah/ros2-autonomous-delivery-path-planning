@@ -771,7 +771,7 @@ int main(int argc, char *argv[]) {
                      << coord.second.x << ", " << coord.second.y << ")" << "\n";
             }
             file.close();
-            cout << "Path saved to rrt_path_star_kd.txt" << endl;
+            cout << "Path saved to " << output_file << endl;
         }
     }
     bool success = !waypoints.empty();
