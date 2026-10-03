@@ -1,10 +1,24 @@
+# ROS 2 / CMake build outputs
 build/
 install/
 log/
-standalone_build/build/
+
+# Standalone generated build directory
+src/rrt_node/standalone_build/build/
+
+# Generated planner outputs
 output/
+
+# Compiled objects and binaries
 *.o
-*.json
-*.txt
+*.so
+*.a
+
+# Python cache
 __pycache__/
 *.pyc
+
+# Editor/system files
+.vscode/
+.idea/
+.DS_Store
