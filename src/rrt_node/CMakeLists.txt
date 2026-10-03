@@ -1,4 +1,4 @@
- cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.8)
 project(rrt_node)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -10,6 +10,8 @@ find_package(rclcpp REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
+find_package(visualization_msgs REQUIRED)
+find_package(std_srvs REQUIRED)
 
 add_executable(odom_tf src/odom_tf.cpp)
 ament_target_dependencies(odom_tf
@@ -27,20 +29,28 @@ ament_target_dependencies(odom_imu_tf
   tf2_ros
 )
 
+add_executable(rrt_star_kd_node src/rrt_star_kd_ros_node.cpp)
+ament_target_dependencies(rrt_star_kd_node
+  rclcpp
+  nav_msgs
+  geometry_msgs
+  visualization_msgs
+  std_srvs
+)
+
 install(
   TARGETS
     odom_tf
     odom_imu_tf
+    rrt_star_kd_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
 install(
   DIRECTORY
     config
-    launch
     launch_ros2
     maps
-    scripts
   DESTINATION share/${PROJECT_NAME}
 )
 
