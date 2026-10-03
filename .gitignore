@@ -1,0 +1,10 @@
+build/
+install/
+log/
+standalone_build/build/
+output/
+*.o
+*.json
+*.txt
+__pycache__/
+*.pyc
