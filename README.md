@@ -86,11 +86,10 @@ This planner was part of a larger system for **autonomous delivery**, which incl
 - Vehicle-to-user interaction (QR-based handover)  
 - High-level behavioral planning (finite-state machine)
 
-The full thesis:  
+Full thesis (M.Sc., Politecnico di Milano):  
 **“Integrated Autonomous Delivery System: Enhancing Vehicle-to-User Interaction and Dynamic Path Planning”**
 
-- [Link to thesis PDF](<https://github.com/john-rizkallah/thesis_ros2_public/blob/main/docs/Thesis.pdf>)  
-- [LinkedIn profile](<www.linkedin.com/in/johnmrizkallah>)
+- [Thesis PDF](docs/Thesis.pdf)
 
 ---
 
@@ -106,3 +105,10 @@ The full thesis:
 
 ---
 
+## Contact
+
+I’m open to opportunities in **autonomy**, **path planning**, and **ROS 2 robotics software**.
+
+- Email: <jn.rizkallah@gmail.com>  
+- LinkedIn: [linkedin.com/in/johnmrizkallah](https://www.linkedin.com/in/johnmrizkallah)  
+- GitHub: [github.com/johnrizkallah/ros2-autonomous-delivery-path-planning](https://github.com/johnrizkallah/ros2-autonomous-delivery-path-planning)
