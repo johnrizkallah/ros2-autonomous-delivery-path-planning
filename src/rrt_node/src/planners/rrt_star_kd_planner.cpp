@@ -100,6 +100,7 @@ void saveData(
     std::vector<std::pair<double, double>> &goal_pos,  // Goal positions
     std::vector<std::pair<std::pair<double, double>, std::pair<double, double>>> &path,  // Path (edges)
     std::vector<std::vector<std::pair<double, double>>> &footprints,  // Footprints (optional)
+    const std::vector<int> &parents,  // Parent index for each tree node
     std::vector<double> &map_origin,  // Map origin (x, y)
     double map_resolution  // Resolution
 ) {
@@ -125,6 +126,13 @@ void saveData(
         treeJson.append(jsonNode);
     }
     root["tree"] = treeJson;
+
+    // Parent index for each tree node. parents[0] is -1 for the root.
+    Json::Value parentsJson;
+    for (int parent : parents) {
+        parentsJson.append(parent);
+    }
+    root["parents"] = parentsJson;
 
     // Start position
     root["start"].append(start_pos.first);
@@ -815,10 +823,10 @@ int main(int argc, char *argv[]) {
     auto footprints_vector = convertFootprints(footprints);
 
     if (goal_reached)
-        saveData(BW_vector, tree_vector, start_vector, goal_vector, path_vector, footprints_vector, map_origin, map_resolution);
+        saveData(BW_vector, tree_vector, start_vector, goal_vector, path_vector, footprints_vector, parents, map_origin, map_resolution);
     else {
         vector<std::pair<std::pair<double, double>, std::pair<double, double>>> empty_path;
-        saveData(BW_vector, tree_vector, start_vector, goal_vector, empty_path, footprints_vector, map_origin, map_resolution);
+        saveData(BW_vector, tree_vector, start_vector, goal_vector, empty_path, footprints_vector, parents, map_origin, map_resolution);
     }
     
     // Call Python script to plot (note the semicolon added)
