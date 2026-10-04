@@ -14,6 +14,42 @@ A standalone C++ implementation of **RRT*KD** that:
 - Produces a collision-free path in world coordinates
 - Exports planning output as a text path and JSON data file
 
+## Demo
+
+The visualization shows occupancy-grid navigation, the dark-blue RRT*KD exploration tree, and the final optimized route in green.
+
+![Animated RRT*KD planning on an occupancy grid](media/rrt_star_kd_demo.gif)
+
+## Quick demo
+
+Build the workspace:
+
+```bash
+source /opt/ros/jazzy/setup.bash
+colcon build
+source install/setup.bash
+```
+
+Launch the planner with RViz:
+
+```bash
+ros2 launch rrt_node rrt_star_kd_demo.launch.py
+```
+
+In RViz:
+1. Set **Fixed Frame** to `map`
+2. Click **Add** → By topic → `/rrt_star_kd/path` → Path
+3. Click **Add** → By topic → `/rrt_star_kd/markers` → Marker
+4. Press **Z** to zoom out to fit the view
+
+Call the planning service:
+
+```bash
+ros2 service call /rrt_star_kd/plan std_srvs/srv/Trigger {}
+```
+
+The RRT*KD planner will compute a path and publish it to RViz with start (green) and goal (red) markers.
+
 ## Thesis context
 
 The original system combined:
