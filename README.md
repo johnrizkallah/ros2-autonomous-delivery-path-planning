@@ -1,46 +1,47 @@
-# ROS 2 Autonomous Delivery Path Planning
+# ROS 2 RRT* Global Planner for Autonomous Delivery
 
-ROS 2 modernization of the navigation components from my master's thesis:
-**Integrated Autonomous Delivery System: Enhancing Vehicle-to-User Interaction and Dynamic Path Planning**.
+C++ implementation of an **RRT\***-based global path planner for autonomous delivery, originally developed for my master’s thesis.  
+Built with **ROS 2 Jazzy**, **OpenCV**, and **FLANN KD-tree**, and visualized in **RViz**.
 
-## Current milestone
-
-A standalone C++ implementation of **RRT*KD** that:
-
-- Loads an occupancy-grid map from YAML and PGM files
-- Uses OpenCV for map processing
-- Uses FLANN KD-tree nearest-neighbor and radius searches
-- Performs collision checking with a conservative vehicle footprint
-- Produces a collision-free path in world coordinates
-- Exports planning output as a text path and JSON data file
-
-## Demo
-
-The visualization shows occupancy-grid navigation, the dark-blue RRT*KD exploration tree, and the final optimized route in green.
+**Live demo:**
 
 ![Animated RRT*KD planning on an occupancy grid](media/rrt_star_kd_demo.gif)
 
-## Quick demo
+*RRT*KD planning on an occupancy grid: exploration tree in blue, final optimized path in green.*
 
-Build the workspace:
+---
+
+## What this repo demonstrates
+
+- Real-time sampling-based path planning in 2D occupancy grids  
+- **RRT\*** algorithm with KD-tree nearest-neighbor and radius search (FLANN)  
+- Collision checking using a conservative rectangular vehicle footprint  
+- ROS 2 node exposing planning as a service and publishing `nav_msgs/Path` + markers  
+- End-to-end integration: map loading → planning → RViz visualization  
+
+This is the core global planning component from my thesis on **autonomous last‑mile delivery**.
+
+---
+
+## Quick start
 
 ```bash
+# From the repo root
 source /opt/ros/jazzy/setup.bash
 colcon build
 source install/setup.bash
-```
 
-Launch the planner with RViz:
-
-```bash
+# Launch planner with RViz
 ros2 launch rrt_node rrt_star_kd_demo.launch.py
 ```
 
 In RViz:
-1. Set **Fixed Frame** to `map`
-2. Click **Add** → By topic → `/rrt_star_kd/path` → Path
-3. Click **Add** → By topic → `/rrt_star_kd/markers` → Marker
-4. Press **Z** to zoom out to fit the view
+
+- Set **Fixed Frame** to `map`
+- Add:
+  - `/rrt_star_kd/path` (type: `Path`)
+  - `/rrt_star_kd/markers` (type: `Marker` / `MarkerArray`)
+- Press **Z** to zoom to fit
 
 Call the planning service:
 
@@ -48,18 +49,60 @@ Call the planning service:
 ros2 service call /rrt_star_kd/plan std_srvs/srv/Trigger {}
 ```
 
-The RRT*KD planner will compute a path and publish it to RViz with start (green) and goal (red) markers.
+The planner computes a collision-free path and publishes it to RViz with:
+- Start marker (green)
+- Goal marker (red)
+- RRT* exploration tree (blue)
+- Final optimized path (green)
+
+---
+
+## Key design decisions
+
+- **RRT\***  
+  Chosen for asymptotic optimality and robustness in cluttered environments.  
+  The implementation incrementally builds a tree of feasible configurations and rewires to improve path cost.
+
+- **KD-tree (FLANN)**  
+  Used for efficient nearest-neighbor and radius queries during sampling and rewiring, enabling scalable performance on larger maps.
+
+- **Collision checking**  
+  Conservative rectangular footprint with margin, approximating a small delivery vehicle.  
+  Checks are performed in world coordinates against the occupancy grid.
+
+- **ROS 2 integration**  
+  Planner exposed as a synchronous service (`/rrt_star_kd/plan`).  
+  Outputs standard `nav_msgs/Path` and visualization markers for easy integration with other navigation components.
+
+---
 
 ## Thesis context
 
-The original system combined:
+This planner was part of a larger system for **autonomous delivery**, which included:
 
-- Occupancy-grid mapping
-- RRT*KD global path planning
-- Model Predictive Control trajectory tracking
-- QR-based vehicle-to-user interaction
-- Finite-state behavioral planning
+- Occupancy-grid mapping  
+- Global path planning (this component)  
+- Trajectory tracking (MPC)  
+- Vehicle-to-user interaction (QR-based handover)  
+- High-level behavioral planning (finite-state machine)
 
-## Status
+The full thesis:  
+**“Integrated Autonomous Delivery System: Enhancing Vehicle-to-User Interaction and Dynamic Path Planning”**
 
-Work in progress: converting the standalone RRT*KD implementation into a ROS 2 node that will publish `nav_msgs/Path` for RViz visualization.
+- [Link to thesis PDF](<https://github.com/john-rizkallah/thesis_ros2_public/blob/main/docs/Thesis.pdf>)  
+- [LinkedIn profile](<www.linkedin.com/in/johnmrizkallah>)
+
+---
+
+## Repository structure
+
+- `src/rrt_node/`
+  - `src/rrt_star_kd_ros_node.cpp` – main RRT*KD planner and ROS 2 node  
+  - `launch/rrt_star_kd_demo.launch.py` – demo launch file with RViz  
+  - `launch/rrt_star_kd.rviz` – RViz configuration  
+  - `maps/` – example occupancy-grid maps (PGM + YAML)  
+- `media/`
+  - `rrt_star_kd_demo.gif` – animated planning demo  
+
+---
+
